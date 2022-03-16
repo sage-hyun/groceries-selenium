@@ -86,6 +86,19 @@ def get_groceries_data():
         print(elem['name'])
         print([x.strftime('%Y.%m.%d') for x in elem['date_list']])
 
+        # count
+        elem['count'] = len(elem['date_list'])
+
+        # cycle
+        gaps = []
+        for i in range(elem['count'] - 1):
+            gap = elem['date_list'][i] - elem['date_list'][i+1]
+            gaps.append(gap.days)
+        elem['cycle'] = sum(gaps)/len(gaps) if gaps else 0
+        
+        print(elem['count'])
+        print(elem['cycle'])
+
     return data
 
 
