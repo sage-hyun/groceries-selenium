@@ -49,16 +49,16 @@ while True:
             p_name = product.text.strip()
 
             # check existance ("list comprehension")
-            existance = [(idx, elem) for idx, elem in enumerate(data) if elem['name'] == p_name]
+            pre_existence = [elem for elem in data if elem['name'] == p_name]
 
-            if not existance:
+            if not pre_existence:
                 # create new
                 data.append({'name':p_name, 'date_list':[date]})
             else:
-                idx, _ = existance[0]
-                if date not in data[idx]['date_list']:
-                    data[idx]['date_list'].append(date)
-    
+                elem = pre_existence[0]
+                if date not in elem['date_list']:
+                    elem['date_list'].append(date)
+
     page_num += 1
 
 
