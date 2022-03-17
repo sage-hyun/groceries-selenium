@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groceries</title>
+</head>
+<body>
+    <h1>Groceries</h1>
+    <canvas id="myChart" width="400" height="10000"></canvas>
+   
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        const data = {
+            labels: [ {% for elem in data %} "{{ elem.name }}", {% endfor %} ],
+            datasets: [
+                {
+                    label: 'count',
+                    data: [ {% for elem in data %} "{{ elem.count }}", {% endfor %} ],
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                },
+                {
+                    label: 'cycle',
+                    data: [ {% for elem in data %} "{{ elem.cycle }}", {% endfor %} ],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                }
+            ]
+        };
+
+        // tooltip content
+        const date_list = [ {% for elem in data %} [ {% for date in elem.date_list %} "{{ date }}", {% endfor %} ], {% endfor %} ]
+        const footer = (tooltipItems) => {
+            return date_list[tooltipItems[0].dataIndex];
+        };
+
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                },
+                elements: {
+                    bar: {
+                        borderWidth: 1,
+                    }
+                },
+                responsive: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    title: {
+                        display: true,
+                        text: 'E-mart Orders: Count & Cycle'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            footer: footer,
+                        }
+                    }
+                }
+            },
+        });
+    </script>
+
+</body>
+</html>
