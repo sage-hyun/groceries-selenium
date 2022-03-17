@@ -10,6 +10,8 @@ selenium = "3.141.0"
 python-dotenv = "^0.19.2"
 bs4 = "^0.0.1"
 chromedriver-autoinstaller = "^0.3.1"
+Flask = "^2.0.3"
+pymongo = {extras = ["srv"], version = "^4.0.2"}
 
 [tool.poetry.dev-dependencies]
 
