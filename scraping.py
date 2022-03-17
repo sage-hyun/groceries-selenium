@@ -19,6 +19,14 @@ def driver_init():
     driver = webdriver.Chrome(options=options)
 
 
+def driver_close():
+    global driver
+    try:
+        driver.close()
+    except:
+        print("no driver to close")
+
+
 def login():
     global driver
     # .env
@@ -71,7 +79,6 @@ def search(data, search_start, search_end):
 
 
 def get_groceries_data():
-    global driver
     driver_init()
     login()
 
@@ -80,7 +87,7 @@ def get_groceries_data():
     data = search(data, "2020-01-01", "2020-12-31")
     data = search(data, "2019-01-01", "2019-12-31")
 
-    driver.close()
+    driver_close()
 
     for elem in data:
         print(elem['name'])
