@@ -56,22 +56,22 @@ def search(data, search_start, search_end):
         for order in soup.find_all("div", {"class":"codr_odrdeliv"}):
             # get date
             date_str = order.find("span", {"class":"codr_odrdeliv_odrdate"}).text
-            date = datetime.strptime(date_str, '%Y.%m.%d')  # datetime object
+            # date = datetime.strptime(date_str, '%Y.%m.%d')  # datetime object
 
             # get product names
             for product in order.find_all("span", {"class":"codr_unit_name"}):
-                p_name = product.text.strip()
+                p_name = product.text.strip().replace("\n","").replace("\t","")
 
                 # check existance ("list comprehension")
                 pre_existence = [elem for elem in data if elem['name'] == p_name]
 
                 if not pre_existence:
                     # create new
-                    data.append({'name':p_name, 'date_list':[date]})
+                    data.append({'name':p_name, 'date_list':[date_str]})
                 else:
                     elem = pre_existence[0]
-                    if date not in elem['date_list']:
-                        elem['date_list'].append(date)
+                    if date_str not in elem['date_list']:
+                        elem['date_list'].append(date_str)
         
         page_num += 1
 
@@ -91,7 +91,7 @@ def get_groceries_data():
 
     for elem in data:
         print(elem['name'])
-        print([x.strftime('%Y.%m.%d') for x in elem['date_list']])
+        # print([x.strftime('%Y.%m.%d') for x in elem['date_list']])
 
         # count
         elem['count'] = len(elem['date_list'])
@@ -99,8 +99,10 @@ def get_groceries_data():
         # cycle
         gaps = []
         for i in range(elem['count'] - 1):
-            gap = elem['date_list'][i] - elem['date_list'][i+1]
-            gaps.append(gap.days)
+            date_1 = datetime.strptime(elem['date_list'][i], '%Y.%m.%d')
+            date_2 = datetime.strptime(elem['date_list'][i+1], '%Y.%m.%d')
+            gap =  date_1 - date_2
+            gaps.append(gap.days / 30)
         elem['cycle'] = sum(gaps)/len(gaps) if gaps else 0
         
         print(elem['count'])
