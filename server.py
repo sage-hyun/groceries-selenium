@@ -16,8 +16,11 @@ app = Flask(__name__)
 def index():
     # recieve data from mongoDB
     groceries_data = list(db.recipt.find())
+    
+    # sort by counts
+    groceries_data_by_count = sorted(groceries_data, key=lambda elem: elem['count'], reverse=True)
 
-    return render_template("index.html", data=groceries_data)
+    return render_template("index.html", data=groceries_data_by_count)
 
 
 @app.route("/scrape")
