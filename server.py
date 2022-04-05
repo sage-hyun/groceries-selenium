@@ -1,6 +1,7 @@
 import pymongo
 from flask import Flask, render_template, jsonify
 from scraping import get_groceries_data
+from data_processing import calculate_values
 import os
 from dotenv import load_dotenv
 
@@ -28,6 +29,13 @@ def scrape():
     get_groceries_data(db)   # scraping
 
     return jsonify({"code": 0, "msg": "Storage completed"})
+
+
+@app.route("/process-data")
+def process_data():
+    calculate_values(db)
+
+    return jsonify({"code": 0, "msg": "Calculation completed"})
 
 
 if __name__ == '__main__':

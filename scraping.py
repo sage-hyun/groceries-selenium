@@ -85,28 +85,6 @@ def get_groceries_data(db):
     # search(db.recipt, "2019-01-01", "2019-12-31")
     driver_close()
 
-    for elem in data:
-        print(elem['name'])
-        # print([x.strftime('%Y.%m.%d') for x in elem['date_list']])
-
-        # count
-        elem['count'] = len(elem['date_list'])
-
-        # cycle
-        gaps = []
-        for i in range(elem['count'] - 1):
-            date_1 = datetime.strptime(elem['date_list'][i], '%Y.%m.%d')
-            date_2 = datetime.strptime(elem['date_list'][i+1], '%Y.%m.%d')
-            gap =  date_1 - date_2
-            gaps.append(gap.days)
-        elem['cycle'] = sum(gaps)/len(gaps) if gaps else 0
-        
-        print(elem['count'])
-        print(elem['cycle'])
-
-    return data
-
-
 
 if __name__ == '__main__':
     get_groceries_data()
