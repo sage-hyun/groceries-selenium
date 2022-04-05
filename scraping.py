@@ -41,7 +41,7 @@ def login():
     time.sleep(3)
 
 
-def search(data, search_start, search_end):
+def search(collection, search_start, search_end):
     global driver
 
     page_num = 1
@@ -62,31 +62,27 @@ def search(data, search_start, search_end):
             for product in order.find_all("span", {"class":"codr_unit_name"}):
                 p_name = product.text.strip().replace("\n","").replace("\t","")
 
-                # check existance ("list comprehension")
-                pre_existence = [elem for elem in data if elem['name'] == p_name]
+                # check existance
+                pre_existence = collection.find_one({'name': p_name})
 
                 if not pre_existence:
                     # create new
-                    data.append({'name':p_name, 'date_list':[date_str]})
+                    collection.insert_one({'name':p_name, 'date_list':[date_str]})
                 else:
-                    elem = pre_existence[0]
-                    if date_str not in elem['date_list']:
-                        elem['date_list'].append(date_str)
-        
+                    # append date_str to date_list (avoid duplicate)
+                    collection.update_one({'name': p_name}, {"$addToSet": {'date_list': date_str}})
+
         page_num += 1
 
-    return data
 
-
-def get_groceries_data():
+def get_groceries_data(db):
     driver_init()
     login()
-
-    data = []
-    data = search(data, "2021-01-01", "2021-12-31")
-    data = search(data, "2020-01-01", "2020-12-31")
-    data = search(data, "2019-01-01", "2019-12-31")
-
+    today = datetime.now().strftime('%Y-%m-%d')
+    search(db.recipt, "2022-01-01", today)
+    # search(db.recipt, "2021-01-01", "2021-12-31")
+    # search(db.recipt, "2020-01-01", "2020-12-31")
+    # search(db.recipt, "2019-01-01", "2019-12-31")
     driver_close()
 
     for elem in data:

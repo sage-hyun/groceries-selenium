@@ -8,7 +8,7 @@ load_dotenv(verbose=True)
 DB_URI = os.getenv('DB_URI')
 
 client = pymongo.MongoClient(DB_URI)
-db = client.test001     # database name
+db = client.test003     # database name
 
 app = Flask(__name__)
 
@@ -25,10 +25,8 @@ def index():
 
 @app.route("/scrape")
 def scrape():
-    groceries_data = get_groceries_data()   # scraping
+    get_groceries_data(db)   # scraping
 
-    # add data to mongoDB
-    db.recipt.insert_many(groceries_data)
     return jsonify({"code": 0, "msg": "Storage completed"})
 
 
