@@ -5,48 +5,118 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groceries</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html {
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 12px;
+        }
+        h1 {
+            display: inline-block;
+            margin-left: 10px;
+            margin-right: 350px;
+            padding: 5px;
+            color: #3a3e41;
+            font-size: 2.5rem;
+            font-weight: bold;
+            
+            background: linear-gradient(
+                to bottom,
+                transparent 60%,
+                #a2dac9 60%,
+                #a2dac9 85%,
+                transparent 85%
+            );
+        }
+        button {
+            border: 2px solid #61a8ad;
+            padding: 14px 18px;
+            margin: 10px 9px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            color: #61a8ad;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.5s;
+        }
+        button:hover {
+            background-color: #61a8ad;
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
-    <h1>Groceries</h1>
-    <canvas id="myChart" width="400" height="10000"></canvas>
+    
+    <div class="container" >
+        <div class="controlBtn">
+            <h1>GROCERIES</h1>
+            <button id="countSortBtn">SORT BY COUNT</button>
+            <button id="predictonSortBtn">SORT BY PREDICTION</button>
+            <!-- <button id="scrapeBtn">scrape</button> -->
+        </div>
+        <canvas id="myChart" width="1000" height="800"></canvas>
+    </div>
    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('myChart').getContext('2d');
 
-        const data = {
-            labels: [ {% for elem in data %} "{{ elem.name }}", {% endfor %} ],
-            datasets: [
-                {
-                    label: 'count',
-                    data: [ {% for elem in data %} "{{ elem.count }}", {% endfor %} ],
-                    backgroundColor: 'rgb(255, 99, 132)',
-                    borderColor: 'rgb(255, 99, 132)',
-                },
-                {
-                    label: 'cycle',
-                    data: [ {% for elem in data %} "{{ elem.cycle }}", {% endfor %} ],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                }
-            ]
-        };
+        let groceriesDataByCount = {
+            data: {
+                labels: [ {% for elem in data.by_count %} "{{ elem.name }}", {% endfor %} ],
+                datasets: [
+                    {
+                        label: 'count',
+                        data: [ {% for elem in data.by_count %} "{{ elem.count }}", {% endfor %} ],
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                    },
+                    {
+                        label: 'prediction(%)',
+                        data: [ {% for elem in data.by_count %} "{{ elem.prediction }}", {% endfor %} ],
+                        backgroundColor: 'rgba(75, 192, 192)',
+                        borderColor: 'rgba(75, 192, 192)',
+                    },
+                ]
+            },
+            // tooltip content
+            cycle: [ {% for elem in data.by_count %} "{{ elem.cycle }}", {% endfor %} ],
+            date_list: [ {% for elem in data.by_count %} [ {% for date in elem.date_list %} "{{ date }}", {% endfor %} ], {% endfor %} ],
+        }
 
-        // tooltip content
-        const date_list = [ {% for elem in data %} [ {% for date in elem.date_list %} "{{ date }}", {% endfor %} ], {% endfor %} ]
-        const footer = (tooltipItems) => {
-            return date_list[tooltipItems[0].dataIndex];
-        };
+        let groceriesDataByPrediction = {
+            data: {
+                labels: [ {% for elem in data.by_prediction %} "{{ elem.name }}", {% endfor %} ],
+                datasets: [
+                    {
+                        label: 'count',
+                        data: [ {% for elem in data.by_prediction %} "{{ elem.count }}", {% endfor %} ],
+                        backgroundColor: 'rgb(255, 99, 132)',
+                        borderColor: 'rgb(255, 99, 132)',
+                    },
+                    {
+                        label: 'prediction(%)',
+                        data: [ {% for elem in data.by_prediction %} "{{ elem.prediction }}", {% endfor %} ],
+                        backgroundColor: 'rgba(75, 192, 192)',
+                        borderColor: 'rgba(75, 192, 192)',
+                    },
+                ]
+            },
+            // tooltip content
+            cycle: [ {% for elem in data.by_prediction %} "{{ elem.cycle }}", {% endfor %} ],
+            date_list: [ {% for elem in data.by_prediction %} [ {% for date in elem.date_list %} "{{ date }}", {% endfor %} ], {% endfor %} ],
+        }
+
 
         const myChart = new Chart(ctx, {
             type: 'bar',
-            data: data,
+            data: groceriesDataByCount.data,
             options: {
                 indexAxis: 'y',
                 scales: {
                     x: {
-                        beginAtZero: true
-                    }
+                        beginAtZero: true,
+                    },
                 },
                 elements: {
                     bar: {
@@ -60,16 +130,40 @@
                     },
                     title: {
                         display: true,
-                        text: 'E-mart Orders: Count & Cycle'
+                        text: 'Sorted by Count'
                     },
                     tooltip: {
                         callbacks: {
-                            footer: footer,
+                            footer: (tooltipItems) => {
+                                return `cycle: ${Math.floor(groceriesDataByCount.cycle[tooltipItems[0].dataIndex])} days, `
+                                        +`date_list: ${groceriesDataByCount.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
+                            }
                         }
                     }
                 }
             },
         });
+
+        const countSortBtn = document.getElementById("countSortBtn");
+        countSortBtn.onclick = () => {
+            myChart.data = groceriesDataByCount.data;
+            myChart.config.options.plugins.title.text = 'Sorted by Count';
+            myChart.config.options.plugins.tooltip.callbacks.footer = (tooltipItems) => {
+                return `cycle: ${Math.floor(groceriesDataByCount.cycle[tooltipItems[0].dataIndex])} days, `
+                        +`date_list: ${groceriesDataByCount.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
+            }
+            myChart.update();
+        }
+        const predictonSortBtn = document.getElementById("predictonSortBtn");
+        predictonSortBtn.onclick = () => {
+            myChart.data = groceriesDataByPrediction.data;
+            myChart.config.options.plugins.title.text = 'Sorted by Prediction based on Cycles';
+            myChart.config.options.plugins.tooltip.callbacks.footer = (tooltipItems) => {
+                return `cycle: ${Math.floor(groceriesDataByPrediction.cycle[tooltipItems[0].dataIndex])} days, `
+                        +`date_list: ${groceriesDataByPrediction.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
+            }
+            myChart.update();
+        }
     </script>
 
 </body>

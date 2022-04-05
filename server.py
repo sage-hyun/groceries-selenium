@@ -30,8 +30,13 @@ def index():
 
     # sort by counts
     groceries_data_by_count = sorted(groceries_data, key=lambda elem: elem['count'], reverse=True)
+    # sort by prediction
+    groceries_data_by_prediction = sorted(groceries_data, key=lambda elem: elem['prediction'], reverse=True)
 
-    return render_template("index.html", data=groceries_data_by_count)
+    return render_template("index.html", data={
+        "by_count": groceries_data_by_count[:30],
+        "by_prediction": groceries_data_by_prediction[:30],
+    })
 
 
 @app.route("/scrape")
