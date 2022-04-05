@@ -102,7 +102,7 @@ def get_groceries_data():
             date_1 = datetime.strptime(elem['date_list'][i], '%Y.%m.%d')
             date_2 = datetime.strptime(elem['date_list'][i+1], '%Y.%m.%d')
             gap =  date_1 - date_2
-            gaps.append(gap.days / 30)
+            gaps.append(gap.days)
         elem['cycle'] = sum(gaps)/len(gaps) if gaps else 0
         
         print(elem['count'])
