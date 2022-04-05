@@ -19,6 +19,10 @@ def index():
     # recieve data from mongoDB
     groceries_data = list(db.recipt.find())
 
+    # flatten the 'date_list's to find the last order date
+    flat_list = [date for elem in groceries_data for date in elem["date_list"]]
+    last_order_date =  sorted(flat_list)[-1]
+
     # items bought once are unimportant
     groceries_data = [x for x in groceries_data if not x['count']==1 ]
 
@@ -36,7 +40,9 @@ def index():
     return render_template("index.html", data={
         "by_count": groceries_data_by_count[:30],
         "by_prediction": groceries_data_by_prediction[:30],
-    })
+    },
+        last_order_date=last_order_date,
+    )
 
 
 @app.route("/scrape")
