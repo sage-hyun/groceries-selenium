@@ -6,6 +6,9 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+# .env
+load_dotenv(verbose=True)
+
 driver = None
 
 def driver_init():
@@ -19,6 +22,17 @@ def driver_init():
     driver = webdriver.Chrome(options=options)
 
 
+def standalone_driver_init():
+    global driver
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    
+    driver = webdriver.Remote(os.getenv('REMOTE_SERVER_URL'), options=options)
+
+
 def driver_close():
     global driver
     try:
@@ -29,8 +43,6 @@ def driver_close():
 
 def login():
     global driver
-    # .env
-    load_dotenv(verbose=True)
     ID = os.getenv('ID')
     PW = os.getenv('PW')
    
@@ -52,6 +64,8 @@ def search(collection, search_start, search_end):
         
         if soup.find("div", {"class":"codr_no"}):
             break   # exceeded max page
+        
+        print(f"scraping {search_start} ~ {search_end}: page {page_num}")  # log
 
         for order in soup.find_all("div", {"class":"codr_odrdeliv"}):
             # get date
@@ -76,7 +90,11 @@ def search(collection, search_start, search_end):
 
 
 def get_groceries_data(db):
-    driver_init()
+    if os.getenv('SERVER_ENV') == "NAS":
+        standalone_driver_init()
+    else:
+        driver_init()
+
     login()
     today = datetime.now().strftime('%Y-%m-%d')
     search(db.recipt, "2022-01-01", today)
