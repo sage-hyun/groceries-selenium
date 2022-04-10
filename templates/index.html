@@ -6,44 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Groceries</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        html {
-            font-family: 'Noto Sans KR', sans-serif;
-            font-size: 12px;
-        }
-        h1 {
-            display: inline-block;
-            margin-left: 10px;
-            margin-right: 350px;
-            padding: 5px;
-            color: #3a3e41;
-            font-size: 2.5rem;
-            font-weight: bold;
-            
-            background: linear-gradient(
-                to bottom,
-                transparent 60%,
-                #a2dac9 60%,
-                #a2dac9 85%,
-                transparent 85%
-            );
-        }
-        button {
-            border: 2px solid #61a8ad;
-            padding: 14px 18px;
-            margin: 10px 9px;
-            border-radius: 10px;
-            background-color: #ffffff;
-            color: #61a8ad;
-            font-size: 0.9rem;
-            font-weight: bold;
-            transition: all 0.5s;
-        }
-        button:hover {
-            background-color: #61a8ad;
-            color: #ffffff;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/styles/main.css">
 </head>
 <body>
     
@@ -59,10 +22,7 @@
         <div class="last-order-date">last order date: {{ last_order_date }}</div>
     </div>
    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        const ctx = document.getElementById('myChart').getContext('2d');
-
         let groceriesDataByCount = {
             data: {
                 labels: [ {% for elem in data.by_count %} "{{ elem.name }}", {% endfor %} ],
@@ -108,65 +68,9 @@
             cycle: [ {% for elem in data.by_prediction %} "{{ elem.cycle }}", {% endfor %} ],
             date_list: [ {% for elem in data.by_prediction %} [ {% for date in elem.date_list %} "{{ date }}", {% endfor %} ], {% endfor %} ],
         }
-
-
-        const myChart = new Chart(ctx, {
-            type: 'bar',
-            data: groceriesDataByCount.data,
-            options: {
-                indexAxis: 'y',
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                    },
-                },
-                elements: {
-                    bar: {
-                        borderWidth: 1,
-                    }
-                },
-                responsive: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Sorted by Count'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            footer: (tooltipItems) => {
-                                return `cycle: ${Math.floor(groceriesDataByCount.cycle[tooltipItems[0].dataIndex])} days, `
-                                        +`date_list: ${groceriesDataByCount.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
-                            }
-                        }
-                    }
-                }
-            },
-        });
-
-        const countSortBtn = document.getElementById("countSortBtn");
-        countSortBtn.onclick = () => {
-            myChart.data = groceriesDataByCount.data;
-            myChart.config.options.plugins.title.text = 'Sorted by Count';
-            myChart.config.options.plugins.tooltip.callbacks.footer = (tooltipItems) => {
-                return `cycle: ${Math.floor(groceriesDataByCount.cycle[tooltipItems[0].dataIndex])} days, `
-                        +`date_list: ${groceriesDataByCount.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
-            }
-            myChart.update();
-        }
-        const predictonSortBtn = document.getElementById("predictonSortBtn");
-        predictonSortBtn.onclick = () => {
-            myChart.data = groceriesDataByPrediction.data;
-            myChart.config.options.plugins.title.text = 'Sorted by Prediction based on Cycles';
-            myChart.config.options.plugins.tooltip.callbacks.footer = (tooltipItems) => {
-                return `cycle: ${Math.floor(groceriesDataByPrediction.cycle[tooltipItems[0].dataIndex])} days, `
-                        +`date_list: ${groceriesDataByPrediction.date_list[tooltipItems[0].dataIndex].slice(0,5)}`;
-            }
-            myChart.update();
-        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/scripts/chart-controller.js"></script>
 
 </body>
 </html>
